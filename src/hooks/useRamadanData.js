@@ -149,7 +149,7 @@ export function useRamadanData() {
 
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('ramadan-planner-settings');
-        return saved ? JSON.parse(saved) : { userName: null, quranGoal: 'khatam-1', customDailyPages: 20 };
+        return saved ? JSON.parse(saved) : { userName: null, quranGoal: 'khatam-1', customDailyPages: 20, ramadanStartDate: null };
     });
 
     useEffect(() => {

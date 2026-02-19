@@ -54,20 +54,51 @@ function App() {
   const dayData = data && data[currentDay] ? data[currentDay] : null;
 
   // Date Logic
-  const RAMADAN_START = new Date('2026-02-18'); // Ramadan 1447 approx start
-  const currentDate = new Date(RAMADAN_START);
-  currentDate.setDate(RAMADAN_START.getDate() + (currentDay - 1));
+  const RAMADAN_START_DATE = settings.ramadanStartDate || '2026-02-18';
+
+  // Helper to get Local Date from YYYY-MM-DD string
+  const getLocalDate = (dateStr) => {
+    if (!dateStr) return new Date();
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const RAMADAN_START = getLocalDate(RAMADAN_START_DATE);
+
+  // Calculate displayed date for current viewed day
+  const displayedDate = new Date(RAMADAN_START);
+  displayedDate.setDate(RAMADAN_START.getDate() + (currentDay - 1));
+
+  // Auto-jump to "Today" on load or setting change
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Local midnight
+
+    const start = getLocalDate(RAMADAN_START_DATE);
+    // start is already local midnight from getLocalDate
+
+    const diffTime = today - start;
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); // Use round instead of ceil for clean midnight diffs
+
+    // If we are within Ramadan (Day 1 to 30), jump to that day
+    if (diffDays >= 0 && diffDays < 30) {
+      setCurrentDay(diffDays + 1);
+    } else if (diffDays < 0) {
+      // Before Ramadan starts
+      setCurrentDay(1);
+    }
+  }, [settings.ramadanStartDate]);
 
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   };
 
   const handleDateChange = (e) => {
+    // This is for the "Jump to date" feature, not changing the start date
     const selectedDate = new Date(e.target.value);
     const diffTime = Math.abs(selectedDate - RAMADAN_START);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    // Simple logic: mapping date to day index. 
-    // In real app, would need precise Hijri calculation or user override.
+
     if (diffDays >= 0 && diffDays < 30) {
       setCurrentDay(diffDays + 1);
     }
@@ -79,7 +110,7 @@ function App() {
 
   // Show Onboarding if no name is set
   if (!settings.userName) {
-    return <Onboarding onComplete={(name) => updateSettings({ userName: name })} />;
+    return <Onboarding onComplete={(name, date) => updateSettings({ userName: name, ramadanStartDate: date })} />;
   }
 
   if (!dayData) return <div className="h-screen flex items-center justify-center text-primary">Loading...</div>;
@@ -88,29 +119,31 @@ function App() {
     <div className="min-h-screen bg-slate-100 flex justify-center font-sans text-[#1A4D2E]">
 
       {/* Mobile App Container - Responsive Fit */}
-      <div className="w-full md:max-w-md bg-[#FDFBF7] min-h-screen shadow-2xl relative pb-28 md:my-8 md:min-h-[90vh] md:rounded-[3rem] md:overflow-hidden md:border-8 md:border-slate-800">
+      <div className="w-full md:max-w-md bg-[#FDFBF7] h-[100dvh] shadow-2xl relative flex flex-col md:h-[90vh] md:my-8 md:rounded-[3rem] md:border-8 md:border-slate-800 overflow-hidden">
 
         {/* Header with Gamification */}
-        <header className="px-6 pt-12 pb-6 flex justify-between items-start bg-gradient-to-b from-[#F4F1EA] to-transparent">
+        <header className="px-6 pt-8 pb-2 flex justify-between items-center bg-gradient-to-b from-[#F4F1EA] to-transparent flex-none z-20">
           <div className="relative">
-            <div className="text-xs font-bold tracking-widest text-[#D4AF37] uppercase mb-1">Ramadan 1446 AH</div>
-            <h1 className="text-3xl font-serif text-[#1A4D2E] drop-shadow-sm">Ramadan Planner</h1>
+            <h1 className="text-2xl font-serif font-bold text-[#1A4D2E] drop-shadow-sm mb-1">Ramadan Planner</h1>
 
-            {/* Interactive Date Picker */}
-            <div className="flex items-center gap-2 mt-1 cursor-pointer group" onClick={() => setShowDatePicker(!showDatePicker)}>
-              <div className="text-sm text-slate-400 font-medium group-hover:text-[#D4AF37] transition-colors">
-                {formatDate(currentDate)}
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+              <span className="text-[#D4AF37] uppercase tracking-wider font-bold">Ramadan 1447</span>
+              <span>•</span>
+              {/* Interactive Date Picker */}
+              <div className="flex items-center gap-1 cursor-pointer hover:text-[#D4AF37] transition-colors" onClick={() => setShowDatePicker(!showDatePicker)}>
+                <span>{formatDate(displayedDate)}</span>
+                <ChevronDown className="w-3 h-3" />
               </div>
-              <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-[#D4AF37]" />
             </div>
 
             {/* Date Picker Dropdown */}
             {showDatePicker && (
-              <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-xl p-2 z-50 border border-slate-100 animate-in fade-in zoom-in-95">
+              <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-xl p-2 z-50 border border-slate-100 animate-in fade-in zoom-in-95 ring-1 ring-slate-100">
                 <input
                   type="date"
-                  className="border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+                  className="border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-[#D4AF37] focus:border-[#D4AF37] outline-none"
                   onChange={handleDateChange}
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
             )}
@@ -124,21 +157,18 @@ function App() {
                 <span className="font-bold text-orange-700">{streak}</span>
               </div>
             )}
-            <div
-              className="w-10 h-10 bg-white border border-[#EBE7DE] rounded-xl flex items-center justify-center shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
-              onClick={() => setShowDatePicker(!showDatePicker)}
-            >
-              <CalendarIcon className="w-5 h-5 text-[#D4AF37]" />
-            </div>
+
+            {/* Hidden Redundant Calendar Button (since text is clickable) */}
+            {/* Kept wrapper for layout stability if needed, or removed entirely */}
           </div>
         </header>
 
         {/* Day Navigation */}
-        <div className="px-6 mb-6">
+        <div className="px-6 mb-6 flex-none z-10">
           <DayNavigator currentDay={currentDay} onDayChange={setCurrentDay} />
         </div>
 
-        <main className="px-6 h-[calc(100vh-250px)] overflow-y-auto scrollbar-hide pb-20">
+        <main className="px-6 flex-1 overflow-y-auto scrollbar-hide pb-24">
           {activeTab === 'home' && (
             <DayView
               day={currentDay}

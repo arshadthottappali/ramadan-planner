@@ -15,7 +15,7 @@ export default function StudyView({ customResources, onAddResource, onRemoveReso
     };
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-16">
 
             {/* 1. Daily Adkar Section (New) */}
             <div className="mb-8 px-1">

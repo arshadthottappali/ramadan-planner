@@ -9,7 +9,7 @@ export default function BottomNav({ activeTab, onTabChange }) {
     ];
 
     return (
-        <div className="absolute bottom-0 left-0 w-full bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#EBE7DE] pb-6 pt-3 px-6 z-50 rounded-t-3xl">
+        <div className="absolute bottom-0 left-0 w-full bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#EBE7DE] pb-4 pt-2 px-6 z-50 rounded-t-3xl">
             <div className="flex justify-between items-center px-2">
                 {tabs.map(tab => {
                     const isActive = activeTab === tab.id;

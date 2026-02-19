@@ -93,7 +93,7 @@ export default function DayView({ day, data, updateDay, updateDayField, onGoalCo
     };
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 pb-20">
+        <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 pb-16">
 
             {/* 1. Quran Tracker Widget (First Priority) */}
             <Card title="Qur'an Tracker" icon={BookOpen} className="bg-[#FFFBEB] border-[#FEF3C7] relative overflow-hidden"

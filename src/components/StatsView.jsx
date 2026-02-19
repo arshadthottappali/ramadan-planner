@@ -1,6 +1,6 @@
 import { BarChart, Activity, BookOpen, Trophy, TrendingUp, Calendar, Info, Settings, Download, Trash2 } from 'lucide-react';
 
-export default function StatsView({ data, settings, onExport, onReset }) {
+export default function StatsView({ data, settings, updateSettings, onExport, onReset }) {
 
     // --- Data Processing ---
 
@@ -98,7 +98,7 @@ export default function StatsView({ data, settings, onExport, onReset }) {
 
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-16">
 
             {/* Header Card */}
             <div className="bg-[#1A4D2E] text-white p-6 rounded-[2rem] shadow-xl mb-6 relative overflow-hidden">
@@ -249,6 +249,36 @@ export default function StatsView({ data, settings, onExport, onReset }) {
                 <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                     <div className="flex items-center gap-2 mb-4">
                         <Settings className="w-5 h-5 text-[#D4AF37]" />
+                        <h3 className="font-bold text-[#1A4D2E]">Settings</h3>
+                    </div>
+
+                    <div className="space-y-4 mb-8">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Display Name</label>
+                            <input
+                                type="text"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#1A4D2E] font-bold focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+                                value={settings.userName || ''}
+                                onChange={(e) => updateSettings({ userName: e.target.value })}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ramadan Start Date</label>
+                            <input
+                                type="date"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[#1A4D2E] font-bold focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+                                value={settings.ramadanStartDate || '2026-02-18'}
+                                onChange={(e) => updateSettings({ ramadanStartDate: e.target.value })}
+                            />
+                            <div className="flex items-center gap-2 mt-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                <p className="text-[10px] text-green-700 font-medium">Changes saved automatically</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 mb-4">
+                        <Download className="w-5 h-5 text-[#D4AF37]" />
                         <h3 className="font-bold text-[#1A4D2E]">Data Management</h3>
                     </div>
 
@@ -262,21 +292,7 @@ export default function StatsView({ data, settings, onExport, onReset }) {
                         </button>
 
                         <button
-                            onClick={() => {
-                                if (confirm("Would you like to download a backup before resetting?")) {
-                                    onExport();
-                                    // Give it a second to start download before showing the next confirm
-                                    setTimeout(() => {
-                                        if (confirm("Backup started. Now, are you SURE you want to Reset All Data? This cannot be undone.")) {
-                                            onReset();
-                                        }
-                                    }, 1000);
-                                } else {
-                                    if (confirm("Are you SURE you want to Reset All Data without a backup? This cannot be undone.")) {
-                                        onReset();
-                                    }
-                                }
-                            }}
+                            onClick={onReset}
                             className="w-full py-3 bg-red-50 text-red-600 font-bold rounded-xl border border-red-100 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
                         >
                             <Trash2 className="w-4 h-4" />
