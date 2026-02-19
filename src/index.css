@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#FDFBF7] text-[#1A4D2E] font-sans antialiased;
+    /* Cream background from template */
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: 'Amiri', serif;
+  }
+
+  .font-sans {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .card {
+    @apply bg-[#F4F1EA] rounded-3xl p-5 shadow-sm border border-[#EBE7DE];
+  }
+
+  .card-white {
+    @apply bg-white rounded-2xl p-4 shadow-sm border border-slate-100;
+  }
+
+  /* Custom Checkbox Style */
+  .checkbox-round {
+    @apply rounded-full border-2 border-[#D1D5DB] w-6 h-6 flex items-center justify-center transition-all;
+  }
+
+  .checkbox-round[data-checked="true"] {
+    @apply bg-[#1A4D2E] border-[#1A4D2E];
+  }
+
+  /* Lined Paper effect */
+  .lined-paper {
+    background-image: linear-gradient(#E5E7EB 1px, transparent 1px);
+    background-size: 100% 2rem;
+    line-height: 2rem;
+    background-color: #FFFBEB;
+    /* Light yellow tint like the template */
+  }
+}
+
+/* Hide scrollbar for clean mobile look */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
