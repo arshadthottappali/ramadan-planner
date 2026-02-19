@@ -69,20 +69,21 @@ export default function DayView({ day, data, updateDay, updateDayField, onGoalCo
         goalText = `Juz ${targetJuz}`;
     }
 
-    // Check for goal completion (simple demo: every 10 pages or 1 juz)
+    // Check for goal completion
+    const isMounted = useRef(false);
+
     useEffect(() => {
+        if (!isMounted.current) {
+            isMounted.current = true;
+            return;
+        }
+
         if (trackingType === 'pages') {
             if (pagesRead > 0 && pagesRead % 10 === 0 && !quranCelebrated.current) {
                 onGoalComplete && onGoalComplete();
                 quranCelebrated.current = true;
             } else if (pagesRead % 10 !== 0) {
                 quranCelebrated.current = false;
-            }
-        } else {
-            if (juzRead > 0 && !quranCelebrated.current) { // Celebrate every Juz increment? potentially logic needs refinement to track 'new' completion
-                // For now, simple trigger on change if it's a new juz
-                // But strict 'every juz' logic requires prev state. 
-                // Lets just leave simple check: if juzRead changed and > 0 (handled by parent update mostly)
             }
         }
     }, [pagesRead, juzRead, trackingType, onGoalComplete]);

@@ -1,13 +1,31 @@
 import { usePrayerTimes } from '../hooks/usePrayerTimes';
 import { Clock, MapPin, Moon, Sun, Sunrise, Sunset, Navigation, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PrayerTimes() {
-    const [location, setLocation] = useState({ city: 'London', country: 'UK' });
-    const [coordinates, setCoordinates] = useState(null); // { latitude, longitude }
-    const [method, setMethod] = useState(2); // Default ISNA
+    // Load saved settings or default
+    const [location, setLocation] = useState(() => {
+        const saved = localStorage.getItem('prayer-location');
+        return saved ? JSON.parse(saved) : { city: 'London', country: 'UK' };
+    });
+
+    const [method, setMethod] = useState(() => {
+        const saved = localStorage.getItem('prayer-method');
+        return saved ? parseInt(saved) : 2;
+    });
+
     const [useGeo, setUseGeo] = useState(false);
+    const [coordinates, setCoordinates] = useState(null);
     const [geoLoading, setGeoLoading] = useState(false);
+
+    // Persist settings changes
+    useEffect(() => {
+        localStorage.setItem('prayer-location', JSON.stringify(location));
+    }, [location]);
+
+    useEffect(() => {
+        localStorage.setItem('prayer-method', method.toString());
+    }, [method]);
 
     const { prayers, loading, error } = usePrayerTimes({
         city: location.city,
@@ -62,6 +80,41 @@ export default function PrayerTimes() {
         date.setHours(parseInt(hours), parseInt(minutes));
         return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     };
+
+    const [nextPrayer, setNextPrayer] = useState(null);
+
+    useEffect(() => {
+        if (!prayers) return;
+
+        const calculateNext = () => {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+
+            const prayerOrder = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+            for (const prayer of prayerOrder) {
+                const timeStr = prayers[prayer];
+                if (!timeStr) continue;
+
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                const prayerTime = hours * 60 + minutes;
+
+                if (prayerTime > currentTime) {
+                    setNextPrayer(prayer);
+                    return;
+                }
+            }
+
+            // If all passed, next is Fajr (tomorrow)
+            setNextPrayer('Fajr');
+        };
+
+        calculateNext();
+        // Update every minute (optional but good for accuracy)
+        const timer = setInterval(calculateNext, 60000);
+        return () => clearInterval(timer);
+
+    }, [prayers]);
 
     const PrayerRow = ({ name, time, icon: Icon, isNext }) => (
         <div className={`flex items-center justify-between p-4 rounded-2xl mb-3 transition-all ${isNext ? 'bg-[#1A4D2E] text-white shadow-lg scale-105' : 'bg-white border border-slate-100 text-slate-600'}`}>
@@ -149,12 +202,15 @@ export default function PrayerTimes() {
                 </div>
             ) : (
                 <div className="px-1">
-                    <PrayerRow name="Fajr" time={prayers?.Fajr} icon={Moon} />
-                    <PrayerRow name="Sunrise" time={prayers?.Sunrise} icon={Sunrise} />
-                    <PrayerRow name="Dhuhr" time={prayers?.Dhuhr} icon={Sun} isNext={true} /> {/* Mock 'next' for now */}
-                    <PrayerRow name="Asr" time={prayers?.Asr} icon={Sun} />
-                    <PrayerRow name="Maghrib" time={prayers?.Maghrib} icon={Sunset} />
-                    <PrayerRow name="Isha" time={prayers?.Isha} icon={Moon} />
+                    {['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((name) => (
+                        <PrayerRow
+                            key={name}
+                            name={name}
+                            time={prayers?.[name]}
+                            icon={name === 'Fajr' || name === 'Isha' ? Moon : name === 'Maghrib' ? Sunset : name === 'Sunrise' ? Sunrise : Sun}
+                            isNext={nextPrayer === name}
+                        />
+                    ))}
                 </div>
             )}
         </div>

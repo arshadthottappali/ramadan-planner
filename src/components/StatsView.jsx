@@ -299,6 +299,17 @@ export default function StatsView({ data, settings, updateSettings, onExport, on
                             Reset All Data
                         </button>
                     </div>
+
+                    <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                        <p className="text-xs text-slate-400 mb-3">Have a suggestion or found a bug?</p>
+                        <a
+                            href="mailto:arshadthottappali@gmail.com?subject=Ramadan Planner Feedback"
+                            className="inline-flex items-center gap-2 text-sm font-bold text-[#D4AF37] hover:text-[#b08d2b] transition-colors"
+                        >
+                            <Settings className="w-4 h-4" />
+                            Send Feedback
+                        </a>
+                    </div>
                 </div>
 
             </div>

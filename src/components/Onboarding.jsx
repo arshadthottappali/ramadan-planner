@@ -54,13 +54,15 @@ export default function Onboarding({ onComplete }) {
                     <form onSubmit={handleDateSubmit} className="w-full max-w-xs space-y-4">
                         <input
                             type="date"
+                            required
                             className="w-full bg-white border-none shadow-sm rounded-2xl px-6 py-4 text-center text-lg focus:ring-2 focus:ring-[#D4AF37] text-[#1A4D2E]"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
                         />
                         <button
                             type="submit"
-                            className="w-full bg-[#1A4D2E] text-white font-bold py-4 rounded-2xl shadow-lg shadow-[#1A4D2E]/20 flex items-center justify-center gap-2 hover:bg-[#143d24] transition-all"
+                            disabled={!date}
+                            className="w-full bg-[#1A4D2E] text-white font-bold py-4 rounded-2xl shadow-lg shadow-[#1A4D2E]/20 flex items-center justify-center gap-2 hover:bg-[#143d24] transition-all disabled:opacity-50 disabled:shadow-none"
                         >
                             Start Journey
                             <ArrowRight className="w-5 h-5" />

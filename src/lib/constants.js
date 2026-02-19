@@ -81,7 +81,6 @@ export const INITIAL_DAY_STATE = {
     },
     notes: '',
     plans_tomorrow: '',
-    plans_tomorrow: '',
     custom: [],
     adkar: {
         morning: {}, // { id: true/false }
